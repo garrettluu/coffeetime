@@ -34,7 +34,7 @@ export default class App extends Component {
       region: null,
     };
   }
-  componentDidMount(): void {
+  componentDidMount() {
     this.getLocationAsync();
   }
 
@@ -55,6 +55,13 @@ export default class App extends Component {
     }
   }
   render() {
+    const placeholder = [{
+      latlng: {
+        latitude: 33.7742,
+        longitude: -117.9024,
+      },
+      title: "TEST"
+    }];
     return (
         <Fragment>
           <StatusBar barStyle="dark-content"/>
@@ -62,12 +69,14 @@ export default class App extends Component {
             <MapContainer
                 region={this.state.region}
                 style={styles.container}
+                places={placeholder}
             />
           </SafeAreaView>
         </Fragment>
     );
   }
 }
+
 
 
 const styles = StyleSheet.create({
