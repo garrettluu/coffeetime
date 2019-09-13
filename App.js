@@ -6,14 +6,14 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
+import React, {Fragment, Component} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
   ScrollView,
   View,
   Text,
-  StatusBar,
+  StatusBar, PermissionsAndroid,
 } from 'react-native';
 
 import {
@@ -24,70 +24,50 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import MapView from "react-native-maps";
+import MapContainer from "./app/components/MapContainer";
+import Geolocation from "react-native-geolocation-service";
 
-const App = () => {
-  return (
-      <Fragment>
-        <StatusBar barStyle="dark-content" />
-        <SafeAreaView>
-          {/*<ScrollView*/}
-          {/*  contentInsetAdjustmentBehavior="automatic"*/}
-          {/*  style={styles.scrollView}>*/}
-          {/*  <Header />*/}
-          {/*  {global.HermesInternal == null ? null : (*/}
-          {/*    <View style={styles.engine}>*/}
-          {/*      <Text style={styles.footer}>Engine: Hermes</Text>*/}
-          {/*    </View>*/}
-          {/*  )}*/}
-          {/*  <View style={styles.body}>*/}
-          {/*    <View style={styles.sectionContainer}>*/}
-          {/*      <Text style={styles.sectionTitle}>Step One</Text>*/}
-          {/*      <Text style={styles.sectionDescription}>*/}
-          {/*        Edit <Text style={styles.highlight}>App.js</Text> to change this*/}
-          {/*        screen and then come back to see your edits. HELLO WORLD*/}
-          {/*      </Text>*/}
-          {/*    </View>*/}
-          {/*    <View style={styles.sectionContainer}>*/}
-          {/*      <Text style={styles.sectionTitle}>See Your Changes</Text>*/}
-          {/*      <Text style={styles.sectionDescription}>*/}
-          {/*        <ReloadInstructions />*/}
-          {/*      </Text>*/}
-          {/*    </View>*/}
-          {/*    <View style={styles.sectionContainer}>*/}
-          {/*      <Text style={styles.sectionTitle}>Debug</Text>*/}
-          {/*      <Text style={styles.sectionDescription}>*/}
-          {/*        <DebugInstructions />*/}
-          {/*      </Text>*/}
-          {/*    </View>*/}
-          {/*    <View style={styles.sectionContainer}>*/}
-          {/*      <Text style={styles.sectionTitle}>Learn More</Text>*/}
-          {/*      <Text style={styles.sectionDescription}>*/}
-          {/*        Read the docs to discover what to do next:*/}
-          {/*      </Text>*/}
-          {/*    </View>*/}
-          {/*    <LearnMoreLinks />*/}
-          {/*  </View>*/}
-          {/*</ScrollView>*/}
-          <MapView
-              initialRegion={{
-                latitude: 37.78825,
-                longitude: -122.4324,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}
-              style={mapStyle.container}
-          />
-        </SafeAreaView>
-      </Fragment>
-  );
-};
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      region: null,
+    };
+  }
+  componentDidMount(): void {
+    this.getLocationAsync();
+  }
 
-const mapStyle = {
-  container: {
-    width: '100%',
-    height: '80%',
+  async getLocationAsync() {
+    const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+    if (permission === PermissionsAndroid.RESULTS.GRANTED) {
+      await Geolocation.getCurrentPosition((position) => {
+        const region = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        };
+        this.setState({region});
+      });
+    } else {
+      //TODO Permission denied
+    }
+  }
+  render() {
+    return (
+        <Fragment>
+          <StatusBar barStyle="dark-content"/>
+          <SafeAreaView>
+            <MapContainer
+                region={this.state.region}
+            />
+          </SafeAreaView>
+        </Fragment>
+    );
   }
 }
+
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -127,5 +107,3 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
 });
-
-export default App;
