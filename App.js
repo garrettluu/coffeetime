@@ -61,6 +61,7 @@ export default class App extends Component {
           <SafeAreaView>
             <MapContainer
                 region={this.state.region}
+                style={styles.container}
             />
           </SafeAreaView>
         </Fragment>
@@ -70,6 +71,10 @@ export default class App extends Component {
 
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    height: '80%',
+  },
   scrollView: {
     backgroundColor: Colors.lighter,
   },

@@ -1,8 +1,10 @@
 import React, {Component} from 'react'
-import {PermissionsAndroid} from 'react-native'
+//TODO Change react-native-maps because it is deprecated?
 import MapView from 'react-native-maps'
-import Geolocation from "react-native-geolocation-service";
 
+/*
+    Wrapper class for react MapView component
+ */
 export default class MapContainer extends Component {
     constructor(props) {
         super(props);
@@ -14,20 +16,15 @@ export default class MapContainer extends Component {
 
     render() {
         const { region } = this.props;
+        const { style } = this.props;
         return (
             <MapView
-                style={mapStyle.container}
+                style={style}
                 showsUserLocation
+                onRegionChange={this.onRegionChange}
                 region={region}
-            />
+            >
+            </MapView>
         );
     }
 }
-
-const mapStyle = {
-    container: {
-        width: '100%',
-        height: '80%',
-    }
-};
-
