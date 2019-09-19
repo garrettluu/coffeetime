@@ -23,15 +23,21 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import MapView from "react-native-maps";
 import MapContainer from "./app/components/MapContainer";
 import Geolocation from "react-native-geolocation-service";
+
+import Qs from 'qs';
+import axios from 'axios';
+
+//Importing API key -- see README for details
+import mapApiKey from "./mapApiKey";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       region: null,
+      coffeeShops: [],
     };
   }
   componentDidMount() {
@@ -41,19 +47,32 @@ export default class App extends Component {
   async getLocationAsync() {
     const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
     if (permission === PermissionsAndroid.RESULTS.GRANTED) {
-      await Geolocation.getCurrentPosition((position) => {
+      await Geolocation.getCurrentPosition(async (position) => {
         const region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         };
-        this.setState({region});
+        await this.setState({region});
+        await this.getCoffeeShops(this.state.region, 10000);
       });
     } else {
       //TODO Permission denied
     }
   }
+
+  getCoffeeShops(latlng, radius) {
+    axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + Qs.stringify({
+      key: mapApiKey.key,
+      location: "33.7742,-117.9024",
+      radius: radius,
+      type: 'cafe',
+    })).then((response) => {
+        this.state.coffeeShops = response.results;
+    });
+  }
+
   render() {
     const placeholder = [{
       latlng: {
@@ -69,7 +88,7 @@ export default class App extends Component {
             <MapContainer
                 region={this.state.region}
                 style={styles.container}
-                places={placeholder}
+                places={this.state.coffeeShops}
             />
           </SafeAreaView>
         </Fragment>
