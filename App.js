@@ -49,29 +49,31 @@ export default class App extends Component {
   async getLocationAsync() {
     const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
     if (permission === PermissionsAndroid.RESULTS.GRANTED) {
-      await Geolocation.getCurrentPosition((position) => {
+      await Geolocation.getCurrentPosition(async (position) => {
         const region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         };
-        this.setState({region});
+        await this.setState({region});
+        await this.getCoffeeShops(this.state.region, 10000);
       });
     } else {
       //TODO Permission denied
     }
-    await this.getCoffeeShops(this.state.region, 10000);
   }
 
   async getCoffeeShops(region, radius) {
-    axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + Qs.stringify({
+    let location = "" + region.latitude + "," + region.longitude;
+    await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + Qs.stringify({
       key: mapApiKey.key,
-      location: "33.7742,-117.9024",
+      location: location,
       radius: radius,
       type: 'cafe',
     })).then(async (response) => {
-        this.state.coffeeShops = response.data.results;
+        let coffeeShops = response.data.results;
+        await this.setState({coffeeShops});
     });
   }
 
