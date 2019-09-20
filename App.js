@@ -32,6 +32,8 @@ import axios from 'axios';
 //Importing API key -- see README for details
 import mapApiKey from "./mapApiKey";
 
+import placeholderShops from "./placeholderShops";
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -47,40 +49,33 @@ export default class App extends Component {
   async getLocationAsync() {
     const permission = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
     if (permission === PermissionsAndroid.RESULTS.GRANTED) {
-      await Geolocation.getCurrentPosition(async (position) => {
+      await Geolocation.getCurrentPosition((position) => {
         const region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         };
-        await this.setState({region});
-        await this.getCoffeeShops(this.state.region, 10000);
+        this.setState({region});
       });
     } else {
       //TODO Permission denied
     }
+    await this.getCoffeeShops(this.state.region, 10000);
   }
 
-  getCoffeeShops(latlng, radius) {
+  async getCoffeeShops(region, radius) {
     axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + Qs.stringify({
       key: mapApiKey.key,
       location: "33.7742,-117.9024",
       radius: radius,
       type: 'cafe',
-    })).then((response) => {
-        this.state.coffeeShops = response.results;
+    })).then(async (response) => {
+        this.state.coffeeShops = response.data.results;
     });
   }
 
   render() {
-    const placeholder = [{
-      latlng: {
-        latitude: 33.7742,
-        longitude: -117.9024,
-      },
-      title: "TEST"
-    }];
     return (
         <Fragment>
           <StatusBar barStyle="dark-content"/>
@@ -101,7 +96,7 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: '80%',
+    height: '100%',
   },
   scrollView: {
     backgroundColor: Colors.lighter,
@@ -127,16 +122,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '400',
     color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
   },
 });

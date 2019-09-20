@@ -8,16 +8,23 @@ const Marker = MapView.Marker;
     Wrapper class for react MapView component
     */
 export default class MapContainer extends Component {
+  constructor() {
+    super();
+  }
+
   onRegionChange(region) {
     this.state = {region};
   }
 
   showMarkers() {
     const {places} = this.props;
-    return places.map( function (place, i) {
+    return places.map( (place, i) => {
       return <Marker
         key={i}
-        coordinate={place.geometry.location}
+        coordinate={{
+          latitude: place.geometry.location.lat,
+          longitude: place.geometry.location.lng,
+        }}
         title={place.name}
       />
     });
