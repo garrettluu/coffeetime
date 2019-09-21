@@ -32,6 +32,7 @@ import axios from 'axios';
 //Importing API key -- see README for details
 import mapApiKey from "./mapApiKey";
 
+//A set of placeholderShops used for testing purposes
 import placeholderShops from "./placeholderShops";
 
 export default class App extends Component {
