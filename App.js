@@ -41,6 +41,7 @@ export default class App extends Component {
     this.state = {
       region: null,
       coffeeShops: [],
+      placeSelected: false,
     };
   }
   componentDidMount() {
@@ -58,7 +59,7 @@ export default class App extends Component {
           longitudeDelta: 0.0421,
         };
         await this.setState({region});
-        await this.getCoffeeShops(this.state.region, 10000);
+        await this.getCoffeeShops(this.state.region, 50000);
       });
     } else {
       //TODO Permission denied
@@ -67,21 +68,28 @@ export default class App extends Component {
 
   async getCoffeeShops(region, radius) {
     let location = "" + region.latitude + "," + region.longitude;
-    await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + Qs.stringify({
+    let query = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" + Qs.stringify({
       key: mapApiKey.key,
       location: location,
       radius: radius,
+      keyword: 'coffee',
       type: 'cafe',
-    })).then(async (response) => {
-        let coffeeShops = response.data.results;
-        await this.setState({coffeeShops});
+    });
+
+    // console.log(query);
+    await axios.get(query).then(async (response) => {
+      let coffeeShops = response.data.results;
+
+      console.log(coffeeShops);
+
+      await this.setState({ coffeeShops });
     });
   }
 
   render() {
     return (
         <Fragment>
-          <StatusBar barStyle="dark-content"/>
+          <StatusBar barStyle="default"/>
           <SafeAreaView>
             <MapContainer
                 region={this.state.region}
